@@ -22,8 +22,8 @@ public class ThreadTransactionManager {
             .ifPresent(entity -> entity.updateStatus(processingStatus));
     }
 
-    public void updateStatus(VideoStatus status, Consumer<VideoStatus> consumer) {
-        statusJpaRepository.findById(status.getStatusKey())
+    public void updateStatus(String key, Consumer<VideoStatus> consumer) {
+        statusJpaRepository.findById(key)
             .ifPresent(consumer);
     }
 }

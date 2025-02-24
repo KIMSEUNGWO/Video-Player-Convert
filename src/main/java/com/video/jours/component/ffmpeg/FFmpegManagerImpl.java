@@ -16,11 +16,12 @@ public class FFmpegManagerImpl implements FFmpegManager {
     @Value("${path.ffmpeg}")
     private String ffmpegPath;
 
-    private final FFprobeManager fFprobeManager;
+    private final FFprobeManager ffprobeManager;
 
+    @Override
     public Process convert(Path videoPath, Path originalVideoPath) throws IOException {
 
-        FFprobeResult analyze = fFprobeManager.analyze(originalVideoPath);
+        FFprobeResult analyze = ffprobeManager.analyze(originalVideoPath);
 
         var command = FFmpegCommand.newCommand(ffmpegPath, videoPath, originalVideoPath, analyze)
             .buildCommand();
@@ -29,6 +30,5 @@ public class FFmpegManagerImpl implements FFmpegManager {
             .redirectErrorStream(true)
             .start();
     }
-
 
 }

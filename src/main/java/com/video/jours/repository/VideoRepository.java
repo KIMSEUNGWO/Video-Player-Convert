@@ -17,6 +17,7 @@ import java.nio.file.Path;
 @Repository
 @RequiredArgsConstructor
 public class VideoRepository {
+
     private final PathManager pathManager;
     private final FFmpegManager ffmpegManager;
     private final DirectoryManager directoryManager;

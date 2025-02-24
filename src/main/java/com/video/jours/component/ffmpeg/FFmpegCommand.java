@@ -95,8 +95,7 @@ public class FFmpegCommand {
             maps.add("-map");
             maps.add(String.format("[v%sp]", quality));
             if (audioStream.exists()) {
-                maps.add("-map");
-                maps.add("0:a");
+                maps.add("-map"); maps.add("0:a");
             }
         }
         return maps;

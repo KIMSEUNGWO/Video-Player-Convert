@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
@@ -27,7 +29,7 @@ public class FFprobeManager {
             Process process = convert(originalVideoPath);
 
             // 결과 읽기
-            String json = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            String json = readJson(process);
 
             // 프로세스 완료 대기
             int exitCode = process.waitFor();
@@ -40,6 +42,17 @@ public class FFprobeManager {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("FFprobe process interrupted", e);
+        }
+    }
+
+    private String readJson(Process process) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+            return output.toString();
         }
     }
 
@@ -67,10 +80,9 @@ public class FFprobeManager {
 
         for (JsonNode stream : streams) {
             String codecType = stream.path("codec_type").asText();
-            if ("video".equals(codecType)) {
-                videoStream = stream;
-            } else if ("audio".equals(codecType)) {
-                hasAudio = true;
+            switch (codecType) {
+                case "video" -> videoStream = stream;
+                case "audio" -> hasAudio = true;
             }
         }
 
@@ -80,8 +92,7 @@ public class FFprobeManager {
 
         int width = videoStream.path("width").asInt();
         int height = videoStream.path("height").asInt();
-        String frameRate = videoStream.path("r_frame_rate").asText();
-        double fps = calculateFps(frameRate);
+        double fps = calculateFps(videoStream.path("r_frame_rate").asText());
 
         return new FFprobeResult(width, height, fps, hasAudio);
     }
@@ -95,4 +106,5 @@ public class FFprobeManager {
         }
         return Double.parseDouble(frameRate);
     }
+
 }

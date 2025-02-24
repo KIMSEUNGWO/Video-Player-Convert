@@ -2,7 +2,7 @@ package com.video.jours.component;
 
 import com.rabbitmq.client.Channel;
 import com.video.jours.dto.UploadStatus;
-import com.video.jours.dto.serializable.ConvertRequest;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextClosedEvent;
@@ -34,7 +34,6 @@ public class ExecutorRecovery {
 
         executor.submit(() -> {
             try {
-                // 작업 수행
                 runnable.run();
             } finally {
                 activeUploads.remove(key);
@@ -42,9 +41,9 @@ public class ExecutorRecovery {
         });
     }
 
+    @PreDestroy
     @EventListener(ContextClosedEvent.class)
     public void shutdown() {
-        System.out.println("ExecutorRecovery.shutdown");
         // 현재 진행 중인 작업들의 상태 저장
         activeUploads.forEach((key, status) -> {
             try(Channel channel = status.channel()) {

@@ -54,12 +54,11 @@ public class UploadRepository {
                 channel.basicAck(tag, false);
             } catch (Exception e) {
                 log.error("Error processing upload: {}", e.getMessage(), e);
-                statusRepository.findById(message.getKey())
-                    .ifPresent(videoStatus -> {
-                        storageService.delete(THUMBNAIL, videoStatus.getThumbnail());
-                        storageService.delete(ORIGINAL_VIDEO, videoStatus.getOriginalVideo());
-                        threadTransactionManager.updateStatus(videoStatus, data -> data.setError("Upload failed: " + e.getMessage()));
-                    });
+                threadTransactionManager.updateStatus(message.getKey(), videoStatus -> {
+                    storageService.delete(THUMBNAIL, videoStatus.getThumbnail());
+                    storageService.delete(ORIGINAL_VIDEO, videoStatus.getOriginalVideo());
+                    videoStatus.setError("Upload failed: " + e.getMessage());
+                });
                 try {
                     // 실패 시 nack 보내기 (재처리 요청 x)
                     channel.basicNack(tag, false, false);
