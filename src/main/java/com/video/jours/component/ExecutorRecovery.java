@@ -1,8 +1,8 @@
 package com.video.jours.component;
 
+import com.jours.easy_ffmpeg.DirectoryManager;
 import com.rabbitmq.client.Channel;
 import com.video.jours.dto.UploadStatus;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextClosedEvent;
@@ -26,7 +26,6 @@ public class ExecutorRecovery {
     private final DirectoryManager directoryManager;
     private final PathManager pathManager;
 
-
     public void execute(UploadStatus status, Runnable runnable) throws RejectedExecutionException {
 
         String key = status.message().getKey();
@@ -41,12 +40,11 @@ public class ExecutorRecovery {
         });
     }
 
-    @PreDestroy
     @EventListener(ContextClosedEvent.class)
     public void shutdown() {
         // 현재 진행 중인 작업들의 상태 저장
         activeUploads.forEach((key, status) -> {
-            try(Channel channel = status.channel()) {
+            try (Channel channel = status.channel()) {
                 channel.basicNack(status.tag(), false, true);
                 directoryManager.deleteIfExists(pathManager.get(VIDEO, key));
             } catch (Exception e) {

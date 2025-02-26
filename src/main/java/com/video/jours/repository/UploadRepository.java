@@ -50,6 +50,8 @@ public class UploadRepository {
                 storageService.delete(ORIGINAL_VIDEO, message.getOriginalVideo());
 
                 threadTransactionManager.updateStatus(message.getKey(), COMPLETED);
+
+                log.info("Video uploaded successfully with key: {}", message.getKey());
                 // 성공적으로 처리 완료 시 ack 보내기
                 channel.basicAck(tag, false);
             } catch (Exception e) {

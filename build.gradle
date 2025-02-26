@@ -38,6 +38,9 @@ dependencies {
 	testImplementation 'org.springframework.amqp:spring-rabbit-test'
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	implementation 'io.github.kimseungwo:easy-ffmpeg:0.0.2'
+
 }
 
 tasks.named('test') {

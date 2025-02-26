@@ -1,6 +1,6 @@
 package com.video.jours.service;
 
-import com.video.jours.component.DirectoryManager;
+import com.jours.easy_ffmpeg.DirectoryManager;
 import com.video.jours.enums.PathType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;

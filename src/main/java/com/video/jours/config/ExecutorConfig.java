@@ -1,28 +1,35 @@
 package com.video.jours.config;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class ExecutorConfig {
 
+    private final PropertyConfig propertyConfig;
+
+//    @Bean
+//    public BlockingQueue<Runnable> videoQueue() {
+//        return new LinkedBlockingQueue<>();
+//    }
+
     @Bean
-    public BlockingQueue<Runnable> videoQueue() {
-        return new LinkedBlockingQueue<>();
+    BlockingQueue<Runnable> videoQueue() {
+        return new ArrayBlockingQueue<>(propertyConfig.getMaxQueueSize());
     }
 
     @Bean
     public ThreadPoolExecutor videoExecutor() {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            2, // 코어 스레드 수
-            2, // 최대 스레드 수
+            propertyConfig.getThreadCoreCount(), // 코어 스레드 수
+            propertyConfig.getThreadMaxCount(), // 최대 스레드 수
             0L,
             TimeUnit.MILLISECONDS,
             videoQueue(),
